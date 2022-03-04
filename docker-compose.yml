@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  site:
+    build: ./
+    environment:
+      - FRITZBOX_PASSWORD
+      - FRITZBOX_IP
+      - MQTT_BROKER
+      - MQTT_USERNAME
+      - MQTT_PASSWORD
+      - MQTT_BASE_TOPIC
+      - FRITZ2MQTT_SLEEP
