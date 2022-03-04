@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  site:
+  fritz2mqtt:
     build: ./
     environment:
       - FRITZBOX_PASSWORD
