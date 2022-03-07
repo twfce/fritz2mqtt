@@ -14,7 +14,7 @@ fritzIP = os.environ["FRITZBOX_IP"]
 mqttBroker = os.environ["MQTT_BROKER"]
 mqttUsername = os.environ["MQTT_USERNAME"]
 mqttPassword = os.environ["MQTT_PASSWORD"]
-mqttBaseTopic = os.environ["MQTT_BASE_TOPIC"] if "MQTT_BASE_TOPIC" in os.environ else "fritzBox"
+mqttBaseTopic = os.environ["MQTT_BASE_TOPIC"] if "MQTT_BASE_TOPIC" in os.environ else "home/"
 mqttPort = os.environ["MQTT_PORT"] if "MQTT_PORT" in os.environ else 1883
 sleepTime = int(os.environ["FRITZ2MQTT_SLEEP"]) if "FRITZ2MQTT_SLEEP" in os.environ else 10
 
