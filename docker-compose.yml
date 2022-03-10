@@ -3,6 +3,7 @@ version: "3"
 services:
   fritz2mqtt:
     build: ./
+    restart: always
     environment:
       - FRITZBOX_PASSWORD
       - FRITZBOX_IP
