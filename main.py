@@ -13,7 +13,7 @@ def getFritzBoxReport(ip, password, **kwargs):
     if "username" in kwargs:
         fritzStatus = FritzStatus(address=ip, password=password)
     else:
-        fritzStatus = FritzStatus(address=ip, password=username, username=kwargs["username"])
+        fritzStatus = FritzStatus(address=ip, password=password, username=kwargs["username"])
         
     print("[~] Requesting status information".format(ip=ip))
     statusReport = {
