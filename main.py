@@ -8,20 +8,14 @@ from colored import fg, attr
 from fritzconnection.lib.fritzstatus import FritzStatus
 import paho.mqtt.client as mqtt
 
-fritzPassword = os.environ["FRITZBOX_PASSWORD"]
-fritzIP = os.environ["FRITZBOX_IP"]
-
-mqttBroker = os.environ["MQTT_BROKER"]
-mqttUsername = os.environ["MQTT_USERNAME"]
-mqttPassword = os.environ["MQTT_PASSWORD"]
-mqttBaseTopic = os.environ["MQTT_BASE_TOPIC"] if "MQTT_BASE_TOPIC" in os.environ else "home"
-mqttPort = os.environ["MQTT_PORT"] if "MQTT_PORT" in os.environ else 1883
-sleepTime = int(os.environ["FRITZ2MQTT_SLEEP"]) if "FRITZ2MQTT_SLEEP" in os.environ else 10
-
-def getFritzBoxReport(ip, password):
-    print ("[~] Connecting to Fritz.Box ({ip})".format(ip=ip))
-    fritzStatus = FritzStatus(address=fritzIP, password=fritzPassword)
-    print ("[~] Requesting status information".format(ip=ip))
+def getFritzBoxReport(ip, password, **kwargs):
+    print("[~] Connecting to Fritz.Box ({ip})".format(ip=ip))
+    if "username" in kwargs:
+        fritzStatus = FritzStatus(address=ip, password=password)
+    else:
+        fritzStatus = FritzStatus(address=ip, password=username, username=kwargs["username"])
+        
+    print("[~] Requesting status information".format(ip=ip))
     statusReport = {
         "timestamp": str(datetime.now()),
         "external_ip": fritzStatus.external_ip,
@@ -36,21 +30,33 @@ def getFritzBoxReport(ip, password):
         "transmission_rate": {"up": fritzStatus.transmission_rate[0], "down": fritzStatus.transmission_rate[1]},
         "uptime": fritzStatus.uptime
     }
+
     if statusReport:
-        print ("{color}[+] Successfully requested status information{reset}".format(color=fg(2), reset=attr(0)))
+        print("{color}[+] Successfully requested status information{reset}".format(color=fg(2), reset=attr(0)))            
     return statusReport
 
 def onMQTTConnect(client, userdata, flags, rc):
     if rc == 0:
-        print ("{color}[+] Connected to MQTT broker (Return code: {rc}){reset}".format(color=fg(2), rc=rc, reset=attr(0)))
+        print("{color}[+] Connected to MQTT broker (Return code: {rc}){reset}".format(color=fg(2), rc=rc, reset=attr(0)))
     else:
-        print ("{color}[-] Not connected to MQTT broker (Return code: {rc}){reset}".format(color=fg(1), rc=rc, reset=attr(0)))
+        print("{color}[-] Not connected to MQTT broker (Return code: {rc}){reset}".format(color=fg(1), rc=rc, reset=attr(0)))
 
 
 def onMQTTPublish(client, userdata, mid):
-    print ("{color}[*] Published to MQTT broker (Message ID: {mid}){reset}".format(color=fg(135), mid=mid, reset=attr(0)))
+    print("{color}[*] Published to MQTT broker (Message ID: {mid}){reset}".format(color=fg(135), mid=mid, reset=attr(0)))
 
 def main():
+    fritzPassword = os.environ["FRITZBOX_PASSWORD"]
+    fritzUsername = None if "FRITZBOX_USERNAME" not in os.environ else os.environ["FRITZBOX_USERNAME"]
+    fritzIP = os.environ["FRITZBOX_IP"]
+
+    mqttBroker = os.environ["MQTT_BROKER"]
+    mqttUsername = os.environ["MQTT_USERNAME"]
+    mqttPassword = os.environ["MQTT_PASSWORD"]
+    mqttBaseTopic = os.environ["MQTT_BASE_TOPIC"] if "MQTT_BASE_TOPIC" in os.environ else "home"
+    mqttPort = os.environ["MQTT_PORT"] if "MQTT_PORT" in os.environ else 1883
+    sleepTime = int(os.environ["FRITZ2MQTT_SLEEP"]) if "FRITZ2MQTT_SLEEP" in os.environ else 10
+
     client = mqtt.Client()
     client.on_connect = onMQTTConnect
     client.on_publish = onMQTTPublish
@@ -59,8 +65,8 @@ def main():
     client.loop_start()
 
     while True:
-        report = getFritzBoxReport(fritzIP, fritzPassword)
-        print (json.dumps(report, indent=1))
+        report = getFritzBoxReport(ip=fritzIP, password=fritzPassword, username=fritzUsername)
+        print(json.dumps(report, indent=1))
         client.publish("{base}/report".format(base = mqttBaseTopic), json.dumps(report))
         sleep(sleepTime)
 
