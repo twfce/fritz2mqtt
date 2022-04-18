@@ -2,7 +2,7 @@ version: "3"
 
 services:
   fritz2mqtt:
-    build: ./
+    image: ghcr.io/twfce/fritz2mqtt:master
     restart: always
     environment:
       - FRITZBOX_PASSWORD
